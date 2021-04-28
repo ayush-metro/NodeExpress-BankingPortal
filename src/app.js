@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const accountRoutes = require('./routes/accounts.js');
+const servicesRoutes = require('./routes/services.js');
 const data =require('./data')
 const app = express();
 app.set('views', path.join(__dirname, 'views'))
@@ -10,41 +12,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 const {accounts,users,writeJSON} = data
 
+    
+app.use('/account',accountRoutes);
+app.use('/services',servicesRoutes);
 app.get('/',function(req,res){
     res.render('index', {title: 'Account Summary',accounts: data.accounts,users:data.users })
 })
-app.get('/transfer',function(req,res){
-    res.render('transfer')
-})
-app.post('/transfer',function(req,res){
-    accounts[req.body.from].balance=accounts[req.body.from].balance-req.body.amount;
-    accounts[req.body.to].balance=parseInt(accounts[req.body.to].balance)+parseInt(req.body.amount);
-    const accountsJSON = JSON.stringify(accounts);
-    writeJSON(accountsJSON);
-    //fs.writeFileSync(path.join(__dirname,'/json/accounts.json'), accountsJSON,"utf-8");
-    res.render('transfer', {message: "Transfer Completed"})
 
-})
-app.get('/payment',function(req,res){
-    res.render('payment', {account: accounts.credit})
-
-})
-app.post('/payment',function(req,res){
-    accounts.credit.balance = accounts.credit.balance - req.body.amount;
-    accounts.credit.available=parseInt(accounts.credit.available)+parseInt(req.body.amount);
-    const accountsJSON = JSON.stringify(accounts);
-    writeJSON(accountsJSON);
-    res.render('payment', { message: "Payment Successful", account: accounts.credit })
-})
-app.get('/savings',function(req,res){
-    res.render('account', {account: accounts.savings })
-})
-app.get('/credit',function(req,res){
-    res.render('account', {account: accounts.credit })
-})
-app.get('/checking',function(req,res){
-    res.render('account', {account: accounts.checking })
-})
 app.get('/profile',function(req,res){
     //console.log(users[0])
      res.render('profile', {user: users[0] })
